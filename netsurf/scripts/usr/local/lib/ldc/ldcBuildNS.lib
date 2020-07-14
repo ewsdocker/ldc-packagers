@@ -2,7 +2,7 @@
 # =========================================================================
 # =========================================================================
 #
-#	lmsBuildNS.sh
+#	ldcBuildNS.lib
 #
 #		Build the NetSurf binary and package in tarball.
 #
@@ -13,30 +13,30 @@
 #
 # @author Jay Wheeler.
 # @version 0.0.1
-# @copyright © 2018. EarthWalk Software.
+# @copyright © 2018-2020. EarthWalk Software.
 # @license Licensed under the GNU General Public License, GPL-3.0-or-later.
-# @package ewsdocker/debian-netsurf
-# @subpackage lmsBuildNS
+# @package ewsdocker/ldc-netsurf
+# @subpackage ldcBuildNS
 #
 # =========================================================================
 #
-#	Copyright © 2018. EarthWalk Software
+#	Copyright © 2018-2020. EarthWalk Software
 #	Licensed under the GNU General Public License, GPL-3.0-or-later.
 #
-#   This file is part of ewsdocker/debian-netsurf.
+#   This file is part of ewsdocker/ldc-netsurf.
 #
-#   ewsdocker/debian-netsurf is free software: you can redistribute 
+#   ewsdocker/ldc-netsurf is free software: you can redistribute 
 #   it and/or modify it under the terms of the GNU General Public License 
 #   as published by the Free Software Foundation, either version 3 of the 
 #   License, or (at your option) any later version.
 #
-#   ewsdocker/debian-netsurf is distributed in the hope that it will 
+#   ewsdocker/ldc-netsurf is distributed in the hope that it will 
 #   be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
 #   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with ewsdocker/debian-netsurf.  If not, see 
+#   along with ewsdocker/ldc-netsurf.  If not, see 
 #   <http://www.gnu.org/licenses/>.
 #
 # =========================================================================
@@ -54,8 +54,6 @@
 # =========================================================================
 # =========================================================================
 
-declare lmsBuildNs_Ver="0.0.1"
-
 # =========================================================================
 #
 #   nsLoadScript
@@ -70,7 +68,7 @@ declare lmsBuildNs_Ver="0.0.1"
 # =========================================================================
 function nsLoadScript()
 {
-	lmsconDisplay_Debug "nsLoadScript \"${1}\" \"${2}\""
+	lmsDisplay "nsLoadScript \"${1}\" \"${2}\""
 
 	local scriptUrl="${1}"
 	local scriptEnv="${2}"
@@ -78,7 +76,7 @@ function nsLoadScript()
 	[[ -z "${scriptUrl}" || -z "${scriptEnv}" ]] &&
 	 {
 	 	lmscli_optQuiet=0
-		lmsconDisplay "nsLoadScript ERROR: missing required parameter(s)"
+		lmsDisplay "nsLoadScript ERROR: missing required parameter(s)"
 	 	return 1
 	 }
 	
@@ -88,19 +86,19 @@ function nsLoadScript()
     [[ $? -eq 0 ]] || 
      {
      	lmscli_optQuiet=0
-		lmsconDisplay "nsLoadScript ERROR: wget failed."
+		lmsDisplay "nsLoadScript ERROR: wget failed."
      	return 2
      }
 
     # =====================================================================
 
-	sed -i -e 's/apt-get install/apt-get -y install/g' ./env.sh
+	sed -i -e 's/apt-get install/apt-get -y install/g' ./${nsEnv}
 
     # =====================================================================
 
 	unset HOST
 
-	lmsconDisplay_Debug "nsLoadScript completed"
+	lmsDisplay "nsLoadScript completed"
 
 	return 0
 }
@@ -118,7 +116,7 @@ function nsLoadScript()
 # =========================================================================
 function nsBuildApp()
 {
-	lmsconDisplay_Debug "nsBuildApp = \"${1}\" \"${2}\""
+	lmsDisplay "nsBuildApp = \"${1}\" \"${2}\""
 
     # =====================================================================
 
@@ -128,85 +126,85 @@ function nsBuildApp()
 	[[ -z "${loaderPath}"  || -z "${ws}" ]] && 
 	 {
 	 	lmscli_optQuiet=0
-		lmsconDisplay "nsBuildApp ERROR: missing required parameter(s)"
+		lmsDisplay "nsBuildApp ERROR: missing required parameter(s)"
 	 	return 1
 	 }
 
     # =====================================================================
 
-	lmsconDisplay_Debug "source loaderPath"
+	lmsDisplay "source loaderPath"
 
 	source "${loaderPath}"
 
     # =====================================================================
 
-	lmsconDisplay_Debug "calling ns-package-install"
+	lmsDisplay "calling ns-package-install"
 
 	ns-package-install -y
 
     # =====================================================================
 
-	lmsconDisplay_Debug "source env.sh"
+	lmsDisplay "source env.sh"
 
 	source ./env.sh
 
     # =====================================================================
 
-	lmsconDisplay_Debug "calling ns-package-install"
+	lmsDisplay "calling ns-package-install"
 
 	ns-package-install -y
 
     # =====================================================================
 
-	lmsconDisplay_Debug "calling source ns-clone"
+	lmsDisplay "calling source ns-clone"
 
 	ns-clone
 
     # =====================================================================
 
-	lmsconDisplay_Debug "calling ns-pull-install"
+	lmsDisplay "calling ns-pull-install"
 
 	ns-pull-install
 
     # =====================================================================
 
-	lmsconDisplay_Debug "remove env.sh, PWD = $PWD"
+	lmsDisplay "remove env.sh, PWD = $PWD"
 
 	rm ./env.sh
 
     # =====================================================================
 
-	lmsconDisplay_Debug "nsBuildApp: cd = ${ws}, PWD = $PWD"
+	lmsDisplay "nsBuildApp: cd = ${ws}, PWD = $PWD"
 
 	cd "${ws}"
 
     # =====================================================================
 
-	lmsconDisplay_Debug "source env.sh"
+	lmsDisplay "source env.sh"
 
 	source ./env.sh
 
     # =====================================================================
 
-	lmsconDisplay_Debug "cd netsurf, PWD = $PWD"
+	lmsDisplay "cd netsurf, PWD = $PWD"
 
  	cd netsurf
 
     # =====================================================================
 
-	lmsconDisplay_Debug "make"
+	lmsDisplay "make"
 
 	make
 	[[ $? -eq 0 ]] || 
      {
 	 	lmscli_optQuiet=0
-		lmsconDisplay "nsBuildApp ERROR: make failed."
+		lmsDisplay "nsBuildApp ERROR: make failed."
 	 	return 2
 	 }
 
     # =====================================================================
 
-	lmsconDisplay_Debug "nsBuildApp complete"
+	lmsDisplay "nsBuildApp complete"
 
 	return 0
 }

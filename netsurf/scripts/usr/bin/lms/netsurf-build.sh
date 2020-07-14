@@ -11,31 +11,31 @@
 # =========================================================================
 #
 # @author Jay Wheeler.
-# @version 9.6.0
-# @copyright © 2018, 2019. EarthWalk Software.
+# @version 0.1.0
+# @copyright © 2018-2020. EarthWalk Software.
 # @license Licensed under the GNU General Public License, GPL-3.0-or-later.
-# @package ewsdocker/debian-netsurf
+# @package ldc-packagers/netsurf-build
 # @subpackage Dockerfile
 #
 # =========================================================================
 #
-#	Copyright © 2018, 2019. EarthWalk Software
+#	Copyright © 2018-2020. EarthWalk Software
 #	Licensed under the GNU General Public License, GPL-3.0-or-later.
 #
-#   This file is part of ewsdocker/debian-netsurf.
+#   This file is part of ldc-packagers/netsurf-build.
 #
-#   ewsdocker/debian-netsurf is free software: you can redistribute 
+#   ldc-packagers/netsurf-build is free software: you can redistribute 
 #   it and/or modify it under the terms of the GNU General Public License 
 #   as published by the Free Software Foundation, either version 3 of the 
 #   License, or (at your option) any later version.
 #
-#   ewsdocker/debian-netsurf is distributed in the hope that it will 
+#   ldc-packagers/netsurf-build is distributed in the hope that it will 
 #   be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
 #   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with ewsdocker/debian-netsurf.  If not, see 
+#   along with ldc-packagers/netsurf-build.  If not, see 
 #   <http://www.gnu.org/licenses/>.
 #
 # =========================================================================
@@ -52,23 +52,25 @@
 #
 # =========================================================================
 
-declare nsUrl="https://git.netsurf-browser.org/netsurf.git/plain/docs/env.sh"
+declare nsUrl="${NSURF_SRC_URL}"
 declare nsRepo="/pkg-repo"
 
 declare nsArchName="netsurf-${NETSURF_VERS}-${NETSURF_BUILD}-deb-gtk-x86_64.tar.gz"
 declare nsArchive="${nsRepo}/${nsArchName}"
 
-declare nsEnv="./env.sh"
+declare nsEnv="./${NSURF_SRC_NAME}"
 
 declare wsRoot="${HOME}"
 declare wsPath="${wsRoot}/dev-netsurf/workspace"
 
 # =========================================================================
 
-. /usr/local/lib/lms/lmsconCli-0.0.2.bash
-. /usr/local/lib/lms/lmsconDisplay-0.0.2.bash
+. /usr/local/lib/lms/lmsConIn.lib
+. /usr/local/lib/lms/lmsDeclare.lib
+. /usr/local/lib/lms/lmsDisplay.lib
+. /usr/local/lib/lms/lmsStr.lib
 
-. /usr/local/lib/lms/lmsBuildNS-0.0.1.sh
+. /usr/local/lib/ldc/ldcBuildNS.lib
 
 # =========================================================================
 #
@@ -80,33 +82,33 @@ lmscli_optQuiet=${LMSOPT_QUIET}
 lmscli_optDebug=${LMSOPT_DEBUG}
 lmscli_optRemove=${LMSOPT_REMOVE}
 
-lmsconDisplay "###########################"
-lmsconDisplay "#"
-lmsconDisplay "#   Building NetSurf: ${nsArchive}"
-lmsconDisplay "#"
-lmsconDisplay "###########################"
+lmsDisplay "###########################"
+lmsDisplay "#"
+lmsDisplay "#   Building NetSurf: ${nsArchive}"
+lmsDisplay "#"
+lmsDisplay "###########################"
 
-lmsconDisplay_Debug "calling nsLoadScript \"${nsUrl}\" \"${nsEnv}\""
+lmsDisplay "calling nsLoadScript \"${nsUrl}\" \"${nsEnv}\""
 
 nsLoadScript "${nsUrl}" "${nsEnv}"
 [[ $? -eq 0 ]] ||
  {
  	lmscli_optQuiet=0
- 	lmsconDisplay "ERROR: nsLoadScript failed: nsUrl = \"${nsUrl}\", nsEnv = \"${nsEnv}\""
+ 	lmsDisplay "ERROR: nsLoadScript failed: nsUrl = \"${nsUrl}\", nsEnv = \"${nsEnv}\""
  	exit 1
  }
 
-lmsconDisplay_Debug "calling nsBuildApp \"${nsEnv}\" \"${wsPath}\""
+lmsDisplay "calling nsBuildApp \"${nsEnv}\" \"${wsPath}\""
 
 nsBuildApp "${nsEnv}" "${wsPath}"
 [[ $? -eq 0 ]] ||
  {
  	lmscli_optQuiet=0
- 	lmsconDisplay "ERROR: nsBuildApp failed: nsEnv = \"${nsEnv}\", ws_Path = \"${wsPath}\""
+ 	lmsDisplay "ERROR: nsBuildApp failed: nsEnv = \"${nsEnv}\", ws_Path = \"${wsPath}\""
  	exit 2
  }
 
-lmsconDisplay_Debug "packaging"
+lmsDisplay "packaging"
 
 mkdir -p usr/bin
 mkdir -p usr/share/netsurf
@@ -125,10 +127,10 @@ cd ~
     rm ./env.* 2>/dev/null
  }
 
-lmsconDisplay "###########################"
-lmsconDisplay "#"
-lmsconDisplay "#   \"${nsArchive}\" successfully created."
-lmsconDisplay "#"
-lmsconDisplay "###########################"
+lmsDisplay "###########################"
+lmsDisplay "#"
+lmsDisplay "#   \"${nsArchive}\" successfully created."
+lmsDisplay "#"
+lmsDisplay "###########################"
 
 exit 0
